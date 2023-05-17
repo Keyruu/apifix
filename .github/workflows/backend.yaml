@@ -34,7 +34,7 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v3
         with:
-          context: /
+          context: ./
           file: src/main/docker/Dockerfile.native-micro
           push: true
           tags: ghcr.io/keyruu/apifix:latest
