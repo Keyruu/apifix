@@ -1,0 +1,32 @@
+---
+routes:
+- uri: "/*"
+  plugins:
+    openid-connect:
+      client_id: "1ddcbb8e-e594-454a-88e9-4f43f59f180f"
+      client_secret: "lucas"
+      session:
+        secret: "kakadu"
+  upstream:
+    nodes:
+      httpbin:80: 1
+    type: "roundrobin"
+- uri: "/test"
+  plugins:
+    openid-connect:
+      client_id: "asdasdasd"
+      client_secret: "test"
+      session:
+        secret: "kakadu"
+  upstream:
+    nodes:
+      httpbin:80: 1
+    type: "roundrobin"
+services: []
+upstreams: []
+plugins: []
+consumers: []
+global_rules: []
+plugin_metadata: []
+stream_routes: []
+#END
