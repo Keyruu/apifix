@@ -2,8 +2,6 @@ name: Build and Push Backend
 
 on:
   push:
-    paths:
-      - backend/**
     branches:
       - main
   workflow_dispatch:
@@ -21,9 +19,7 @@ jobs:
           distribution: "temurin"
           cache: maven
       - name: Build and Test with Maven
-        run: |
-          cd backend/
-          mvn -B clean package -Pnative --file pom.xml
+        run: mvn -B clean package -Pnative --file pom.xml
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
