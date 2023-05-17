@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: testooo2
+  labels:
+    apisix.config: "true"
+data:
+  config: |
+    routes:
+      - uri: /test
+        plugins:
+          openid-connect:    
+            client_id: "asdasdasd"
+            client_secret: "${secret:test-sec.lol2}"
+            session:
+              secret: ${secret:test2-secret.password}
+        upstream:
+          nodes:
+              "httpbin:80": 1
+          type: roundrobin
