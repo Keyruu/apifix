@@ -3,6 +3,7 @@ package de.keyruu.apifix;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Base64;
+import java.util.logging.Logger;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -22,6 +23,8 @@ import jakarta.inject.Inject;
 @ApplicationScoped
 public class ConfigWatcher implements Watcher<ConfigMap>
 {
+  private static final Logger LOG = Logger.getLogger(ConfigWatcher.class.getName());
+
   @Inject
   KubernetesClient _client;
 
@@ -38,6 +41,7 @@ public class ConfigWatcher implements Watcher<ConfigMap>
   {
     if (action.equals(Action.ADDED) || action.equals(Action.MODIFIED) || action.equals(Action.DELETED))
     {
+      LOG.info("Write ConfigMap " + action.name() + ": " + resource.getMetadata().getName());
       writeConfig(mergeConfigMaps(_filterProvider.get().list()));
     }
   }

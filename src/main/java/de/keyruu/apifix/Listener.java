@@ -1,7 +1,6 @@
 package de.keyruu.apifix;
 
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
+import java.util.logging.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -15,9 +14,13 @@ import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.quarkus.runtime.LaunchMode;
 import io.quarkus.runtime.StartupEvent;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 
 public class Listener
 {
+  private static final Logger LOG = Logger.getLogger(Listener.class.getName());
+
   @Inject
   KubernetesClient _client;
 
@@ -35,7 +38,7 @@ public class Listener
     if (LaunchMode.current().equals(LaunchMode.TEST) == false)
     {
       FilterWatchListDeletable<ConfigMap, ConfigMapList, Resource<ConfigMap>> configMapFilter = _filterProvider.get();
-
+      LOG.info("Starting Apisix Config Watcher");
       configMapFilter.watch(_watcher);
     }
   }
