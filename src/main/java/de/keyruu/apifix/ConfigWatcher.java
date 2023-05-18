@@ -61,7 +61,7 @@ public class ConfigWatcher implements Watcher<ConfigMap>
       try (PrintWriter out = new PrintWriter(configPath))
       {
         out.println(replacedString + "#END");
-        System.out.println("Config written to " + configPath);
+        LOG.info("Config written to " + configPath);
       }
     }
     catch (JsonProcessingException | FileNotFoundException e)
