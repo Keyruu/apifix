@@ -21,6 +21,8 @@ public class ApisixConfig
   private List<Object> pluginMetadata = new ArrayList<>();
   @JsonProperty("stream_routes")
   private List<Object> streamRoutes = new ArrayList<>();
+  @JsonProperty("plugin_configs")
+  private List<Object> pluginConfigs = new ArrayList<>();
 
   public void merge(ApisixConfig toBeMerged)
   {
@@ -32,6 +34,7 @@ public class ApisixConfig
     consumers.addAll(toBeMerged.getConsumers());
     pluginMetadata.addAll(toBeMerged.getPluginMetadata());
     streamRoutes.addAll(toBeMerged.getStreamRoutes());
+    pluginConfigs.addAll(toBeMerged.getPluginConfigs());
   }
 
   public List<Object> getRoutes()
@@ -112,5 +115,15 @@ public class ApisixConfig
   public void setStreamRoutes(List<Object> streamRoutes)
   {
     this.streamRoutes = streamRoutes;
+  }
+
+  public List<Object> getPluginConfigs()
+  {
+    return pluginConfigs;
+  }
+
+  public void setPluginConfigs(List<Object> pluginConfigs)
+  {
+    this.pluginConfigs = pluginConfigs;
   }
 }

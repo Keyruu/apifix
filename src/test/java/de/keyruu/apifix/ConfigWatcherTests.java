@@ -10,8 +10,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import jakarta.inject.Inject;
-
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +22,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 
 @QuarkusTest
 public class ConfigWatcherTests
@@ -43,10 +42,10 @@ public class ConfigWatcherTests
   @BeforeEach
   public void before() throws FileNotFoundException
   {
-    _client.resource(new FileInputStream("src/test/resources/configmap1.yaml")).createOrReplace();
-    _client.resource(new FileInputStream("src/test/resources/configmap2.yaml")).createOrReplace();
-    _client.resource(new FileInputStream("src/test/resources/secret1.yaml")).createOrReplace();
-    _client.resource(new FileInputStream("src/test/resources/secret2.yaml")).createOrReplace();
+    _client.resource(new FileInputStream("src/test/resources/configmap1.yaml")).serverSideApply();
+    _client.resource(new FileInputStream("src/test/resources/configmap2.yaml")).serverSideApply();
+    _client.resource(new FileInputStream("src/test/resources/secret1.yaml")).serverSideApply();
+    _client.resource(new FileInputStream("src/test/resources/secret2.yaml")).serverSideApply();
   }
 
   @Test
