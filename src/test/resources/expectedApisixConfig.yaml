@@ -29,4 +29,5 @@ consumers: []
 global_rules: []
 plugin_metadata: []
 stream_routes: []
+plugin_configs: []
 #END
