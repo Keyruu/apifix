@@ -11,7 +11,8 @@ data:
         plugins:
           openid-connect:    
             client_id: "asdasdasd"
-            client_secret: "${secret:test-sec.lol2}"
+            client_secret: ${secret:test-sec.lol2}
+            client_secret2: ${secret:test-sec.lol3}
             session:
               secret: ${secret:test2-secret.password}
         upstream:

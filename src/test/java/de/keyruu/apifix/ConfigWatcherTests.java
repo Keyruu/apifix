@@ -44,8 +44,10 @@ public class ConfigWatcherTests
   {
     _client.resource(new FileInputStream("src/test/resources/configmap1.yaml")).serverSideApply();
     _client.resource(new FileInputStream("src/test/resources/configmap2.yaml")).serverSideApply();
+    _client.resource(new FileInputStream("src/test/resources/configmap3.yaml")).serverSideApply();
     _client.resource(new FileInputStream("src/test/resources/secret1.yaml")).serverSideApply();
     _client.resource(new FileInputStream("src/test/resources/secret2.yaml")).serverSideApply();
+    _client.resource(new FileInputStream("src/test/resources/secret3.yaml")).serverSideApply();
   }
 
   @Test

@@ -16,6 +16,7 @@ routes:
     openid-connect:
       client_id: "asdasdasd"
       client_secret: "test"
+      client_secret2: "test"
       session:
         secret: "kakadu"
   upstream:
@@ -24,9 +25,19 @@ routes:
     type: "roundrobin"
 services: []
 upstreams: []
-plugins: []
-consumers: []
-global_rules: []
+plugins:
+- name: "proxy-rewrite"
+- name: "basic-auth"
+consumers:
+- username: "exentra"
+  plugins:
+    basic-auth:
+      username: "lucas"
+      password: "test"
+global_rules:
+- id: 1
+  plugins:
+    basic-auth: {}
 plugin_metadata: []
 stream_routes: []
 plugin_configs: []

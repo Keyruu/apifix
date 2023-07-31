@@ -84,7 +84,7 @@ public class ConfigWatcher implements Watcher<ConfigMap>
       String variable = output.substring(startIndex + 2, endIndex);
       String value = getVariableValue(variable);
       output = output.substring(0, startIndex) + value + output.substring(endIndex + 1);
-      startIndex = output.indexOf("${", endIndex);
+      startIndex = output.indexOf("${", startIndex + value.length());
     }
 
     return output;

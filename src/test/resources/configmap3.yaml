@@ -1,0 +1,21 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: apisix-common
+  labels:
+    apisix.config: "true"
+data:
+  config: |
+    plugins:
+      - name: proxy-rewrite
+      - name: basic-auth
+    consumers:
+      - username: exentra
+        plugins:
+          basic-auth:
+            username: ${secret:basic-auth.username}
+            password: ${secret:basic-auth.password}
+    global_rules:
+      - id: 1
+        plugins:
+          basic-auth: {}
