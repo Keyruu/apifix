@@ -34,7 +34,7 @@ public class ConfigWatcher implements Watcher<ConfigMap>
   @Inject
   ConfigFilterProvider _filterProvider;
 
-  private ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+  private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
   @Override
   public void eventReceived(Action action, ConfigMap resource)
@@ -43,13 +43,15 @@ public class ConfigWatcher implements Watcher<ConfigMap>
     {
       LOG.info("Write ConfigMap " + action.name() + ": " + resource.getMetadata().getName());
       writeConfig(mergeConfigMaps(_filterProvider.get().list()));
+    } else {
+      LOG.info("This is weird, got action: " + action.name());
     }
   }
 
   @Override
   public void onClose(WatcherException cause)
   {
-    return;
+    LOG.info("Watcher got closed" + cause.getMessage());
   }
 
   public void writeConfig(ApisixConfig config)

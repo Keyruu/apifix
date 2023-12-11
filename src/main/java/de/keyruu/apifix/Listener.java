@@ -22,16 +22,10 @@ public class Listener
   private static final Logger LOG = Logger.getLogger(Listener.class.getName());
 
   @Inject
-  KubernetesClient _client;
-
-  @Inject
   ConfigWatcher _watcher;
 
   @Inject
   ConfigFilterProvider _filterProvider;
-
-  ApisixConfig _config = new ApisixConfig();
-  ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
   void onStart(@Observes StartupEvent ev) throws JsonMappingException, JsonProcessingException
   {
