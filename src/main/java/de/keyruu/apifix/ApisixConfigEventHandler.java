@@ -98,7 +98,7 @@ public class ApisixConfigEventHandler implements ResourceEventHandler<ConfigMap>
     String[] splitVariable = variable.split(":");
     if (splitVariable.length != 2)
     {
-      throw new RuntimeException("Wrong variable syntax!");
+      throw new RuntimeException("Wrong variable syntax! Variable: " + variable);
     }
     String mode = splitVariable[0], variableName = splitVariable[1];
     if (mode.equals("secret"))
@@ -111,7 +111,7 @@ public class ApisixConfigEventHandler implements ResourceEventHandler<ConfigMap>
     }
     else
     {
-      throw new RuntimeException("This mode is not supported.");
+      throw new RuntimeException("This mode is not supported. Mode: " + mode + " Variable: " + variableName);
     }
   }
 
@@ -120,7 +120,7 @@ public class ApisixConfigEventHandler implements ResourceEventHandler<ConfigMap>
     String[] secretPath = variableName.split("\\.");
     if (secretPath.length != 2)
     {
-      throw new RuntimeException("Wrong secret path syntax!");
+      throw new RuntimeException("Wrong secret path syntax! Variable name: " + variableName);
     }
     String secretName = secretPath[0], secretKey = secretPath[1];
 
@@ -132,7 +132,7 @@ public class ApisixConfigEventHandler implements ResourceEventHandler<ConfigMap>
     Secret secret = _client.secrets().withName(secretName).get();
     if (secret == null)
     {
-      throw new RuntimeException("Could not find secret!");
+      throw new RuntimeException("Could not find secret! Secret name: " + secretName + " Variable name: " + variableName);
     }
 
     var decodedSecret = new String(Base64.getDecoder().decode(secret.getData().get(secretKey)));
