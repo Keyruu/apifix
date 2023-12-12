@@ -1,29 +1,26 @@
 package de.keyruu.apifix;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.util.Base64;
-import java.util.logging.Logger;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-
 import io.fabric8.kubernetes.api.model.ConfigMap;
-import io.fabric8.kubernetes.api.model.ConfigMapList;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.Watcher;
-import io.fabric8.kubernetes.client.WatcherException;
+import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.Base64;
+import java.util.List;
+import java.util.logging.Logger;
 
 @ApplicationScoped
-public class ConfigWatcher implements Watcher<ConfigMap>
+public class ApisixConfigEventHandler implements ResourceEventHandler<ConfigMap>
 {
-  private static final Logger LOG = Logger.getLogger(ConfigWatcher.class.getName());
+  private static final Logger LOG = Logger.getLogger(ApisixConfigEventHandler.class.getName());
 
   @Inject
   KubernetesClient _client;
@@ -32,26 +29,30 @@ public class ConfigWatcher implements Watcher<ConfigMap>
   String configPath;
 
   @Inject
-  ConfigFilterProvider _filterProvider;
+  KubernetesStore _kubernetesStore;
 
   private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
   @Override
-  public void eventReceived(Action action, ConfigMap resource)
-  {
-    if (action.equals(Action.ADDED) || action.equals(Action.MODIFIED) || action.equals(Action.DELETED))
-    {
-      LOG.info("Write ConfigMap " + action.name() + ": " + resource.getMetadata().getName());
-      writeConfig(mergeConfigMaps(_filterProvider.get().list()));
-    } else {
-      LOG.info("This is weird, got action: " + action.name());
-    }
+  public void onAdd(ConfigMap configMap) {
+    LOG.info("Add ConfigMap " + configMap.getMetadata().getName());
+    _kubernetesStore.addConfigMap(configMap);
+    writeConfig(mergeConfigMaps(_kubernetesStore.getConfigMaps()));
   }
 
   @Override
-  public void onClose(WatcherException cause)
-  {
-    LOG.info("Watcher got closed" + cause.getMessage());
+  public void onUpdate(ConfigMap oldConfigMap, ConfigMap newConfigMap) {
+    LOG.info("Update ConfigMap " + newConfigMap.getMetadata().getName());
+    _kubernetesStore.removeConfigMap(oldConfigMap);
+    _kubernetesStore.addConfigMap(newConfigMap);
+    writeConfig(mergeConfigMaps(_kubernetesStore.getConfigMaps()));
+  }
+
+  @Override
+  public void onDelete(ConfigMap configMap, boolean b) {
+    LOG.info("Delete ConfigMap " + configMap.getMetadata().getName());
+    _kubernetesStore.removeConfigMap(configMap);
+    writeConfig(mergeConfigMaps(_kubernetesStore.getConfigMaps()));
   }
 
   public void writeConfig(ApisixConfig config)
@@ -122,18 +123,27 @@ public class ConfigWatcher implements Watcher<ConfigMap>
       throw new RuntimeException("Wrong secret path syntax!");
     }
     String secretName = secretPath[0], secretKey = secretPath[1];
+
+    if (_kubernetesStore.containsSecret(variableName))
+    {
+      return _kubernetesStore.getSecretMap().get(variableName);
+    }
+
     Secret secret = _client.secrets().withName(secretName).get();
     if (secret == null)
     {
       throw new RuntimeException("Could not find secret!");
     }
-    return new String(Base64.getDecoder().decode(secret.getData().get(secretKey)));
+
+    var decodedSecret = new String(Base64.getDecoder().decode(secret.getData().get(secretKey)));
+    _kubernetesStore.setSecretMap(variableName, decodedSecret);
+    return decodedSecret;
   }
 
-  public ApisixConfig mergeConfigMaps(ConfigMapList configMaps)
+  public ApisixConfig mergeConfigMaps(List<ConfigMap> configMaps)
   {
     ApisixConfig apisixConfig = new ApisixConfig();
-    for (ConfigMap configMap : configMaps.getItems())
+    for (ConfigMap configMap : configMaps)
     {
       apisixConfig.merge(mapConfig(configMap));
     }
